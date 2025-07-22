@@ -1,0 +1,9 @@
+---
+plugin: netbox.netbox.nb_inventory
+api_endpoint: http://localhost:8000
+token: "{{ lookup('env', 'NETBOX_API_TOKEN') }}"
+validate_certs: false
+
+group_by:
+  - device_roles
+  - sites
