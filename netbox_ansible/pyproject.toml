@@ -1,0 +1,26 @@
+[project]
+name = "netbox-ansible"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "ansible==11.7.0",
+    "ansible-lint==25.6.1",
+    "jmespath==1.0.1",
+    "pynetbox==7.5.0",
+    "PyYAML==6.0.2"
+]
+[project.optional-dependencies]
+dev = ["black", "ruff", "mypy"]
+[tool.black]
+line-length = 88
+target-version = ["py38"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py38"
+
+[tool.mypy]
+python_version = "3.8"
+strict = true
