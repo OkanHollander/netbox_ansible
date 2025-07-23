@@ -1,0 +1,35 @@
+---
+- name: Define the tenant files directory
+  ansible.builtin.set_fact:
+    tenant_files_dir: "{{ playbook_dir }}/../Organization/Tenants"
+
+- name: Find al tenants YAML files
+  ansible.builtin.find:
+    paths: "{{ tenant_files_dir }}"
+    patterns:
+      - "*.yml"
+      - "*.yaml"
+  register: tenant_files
+
+- name: Initialize tenants_raw
+  ansible.builtin.set_fact:
+    tenants: []
+
+- name: Load YAML content from each tenant file
+  ansible.builtin.set_fact:
+    tenants: "{{ tenants + [lookup('file', item.path) | from_yaml] }}"
+  loop: "{{ tenant_files.files }}"
+  loop_control:
+    label: "{{ item.path }}"
+
+- name: Configure Tenants
+  netbox.netbox.netbox_tenant:
+    netbox_url: "{{ netbox_url }}"
+    netbox_token: "{{ netbox_token }}"
+    data:
+      name: "{{ item.name }}"
+      description: "{{ item.description | default(omit) }}"
+    state: present
+  loop: "{{ tenants }}"
+  loop_control:
+    label: "{{ item.name }}"
