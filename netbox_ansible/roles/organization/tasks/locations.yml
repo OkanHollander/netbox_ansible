@@ -1,0 +1,41 @@
+---
+- name: Define the location files directory
+  ansible.builtin.set_fact:
+    location_files_dir: "{{ playbook_dir }}/../Organization/Locations"
+
+- name: Find al locations YAML files
+  ansible.builtin.find:
+    paths: "{{ location_files_dir }}"
+    patterns:
+      - "*.yml"
+      - "*.yaml"
+  register: location_files
+
+- name: Initialize locations_raw
+  ansible.builtin.set_fact:
+    locations: []
+
+- name: Load YAML content from each location file
+  ansible.builtin.set_fact:
+    locations: "{{ locations + [lookup('file', item.path) | from_yaml] }}"
+  loop: "{{ location_files.files }}"
+  loop_control:
+    label: "{{ item.path }}"
+
+- name: Configure locations
+  netbox.netbox.netbox_location:
+    netbox_url: "{{ netbox_url }}"
+    netbox_token: "{{ netbox_token }}"
+    data:
+      name: "{{ item.name }}"
+      description: "{{ item.description | default(omit) }}"
+      site: "{{ item.site }}"
+      status: "{{ item.status }}"
+      tenant: "{{ item.tenant | default(omit) }}"
+    state: present
+  loop: "{{ locations }}"
+  loop_control:
+    label: "{{ item.name }}"
+  when:
+    - item.site in sites_names
+    - item.tenant in tenant_names
