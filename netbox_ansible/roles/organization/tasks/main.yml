@@ -2,14 +2,17 @@
 - name: Facts
   ansible.builtin.import_tasks: "facts.yml"
 
-- name: Tenants
-  ansible.builtin.import_tasks: "tenants.yml"
+# - name: Tenants
+#   ansible.builtin.import_tasks: "tenants.yml"
 
-- name: Regions
-  ansible.builtin.import_tasks: "regions.yml"
+# - name: Regions
+#   ansible.builtin.import_tasks: "regions.yml"
+
+- name: Site Groups
+  ansible.builtin.import_tasks: "site_groups.yml"
 
 - name: Sites
   ansible.builtin.import_tasks: "sites.yml"
 
-- name: Locations
-  ansible.builtin.import_tasks: "locations.yml"
+# - name: Locations
+  # ansible.builtin.import_tasks: "locations.yml"

@@ -32,6 +32,7 @@
       region: "{{ item.region }}"
       status: "{{ item.status }}"
       tenant: "{{ item.tenant }}"
+      site_group: "{{ item.site_group }}"
     state: present
   loop: "{{ sites }}"
   loop_control:
@@ -39,3 +40,4 @@
   when:
     - item.tenant in tenant_names
     - item.region in regions_names
+    - item.site_group in site_groups_names

@@ -1,0 +1,69 @@
+---
+- name: Define the site_group files directory
+  ansible.builtin.set_fact:
+    site_group_files_dir: "{{ playbook_dir }}/../Organization/Site_Groups"
+
+- name: Find all site_group YAML files
+  ansible.builtin.find:
+    paths: "{{ site_group_files_dir }}"
+    patterns:
+      - "*.yml"
+      - "*.yaml"
+  register: site_group_files
+
+- name: Initialize site_groups_raw list
+  ansible.builtin.set_fact:
+    site_groups_raw: []
+
+- name: Load YAML content from each site_group file
+  ansible.builtin.set_fact:
+    site_groups_raw: "{{ site_groups_raw + [lookup('file', item.path) | from_yaml] }}"
+  loop: "{{ site_group_files.files }}"
+  loop_control:
+    label: "{{ item.path }}"
+
+- name: Initialize sorting state
+  ansible.builtin.set_fact:
+    sorted_site_groups: []
+    remaining_site_groups: "{{ site_groups_raw }}"
+
+- name: Sort site_groups topologically (max 10 iterations)
+  vars:
+    sorted_names: "{{ sorted_site_groups | map(attribute='name') | list }}"
+    root_site_groups: "{{ remaining_site_groups | selectattr('parent', 'undefined') | list }}"
+    child_site_groups: >-
+      {{
+        remaining_site_groups
+        | selectattr('parent', 'defined')
+        | selectattr('parent', 'in', sorted_names)
+        | list
+      }}
+    new_batch: "{{ root_site_groups + child_site_groups }}"
+    new_remaining: "{{ remaining_site_groups | reject('in', new_batch) | list }}"
+    new_sorted: "{{ sorted_site_groups + new_batch }}"
+  ansible.builtin.set_fact:
+    sorted_site_groups: "{{ new_sorted }}"
+    remaining_site_groups: "{{ new_remaining }}"
+  loop: "{{ range(0, 10) | list }}"
+  when: remaining_site_groups | length > 0
+  loop_control:
+    label: "Sort pass #{{ item + 1 }}"
+
+- name: Fail if site_groups could not be fully sorted
+  ansible.builtin.fail:
+    msg: >-
+      Unable to resolve all site_group dependencies after 10 passes.
+      Remaining site_groups: {{ remaining_site_groups | map(attribute='name') | join(', ') }}
+  when: remaining_site_groups | length > 0
+
+- name: Apply site_groups to NetBox in order
+  netbox.netbox.netbox_site_group:
+    netbox_url: "{{ netbox_url }}"
+    netbox_token: "{{ netbox_token }}"
+    data:
+      name: "{{ item.name }}"
+      parent_site_group: "{{ item.parent | default(omit) }}"
+    state: present
+  loop: "{{ sorted_site_groups }}"
+  loop_control:
+    label: "{{ item.name }}"
