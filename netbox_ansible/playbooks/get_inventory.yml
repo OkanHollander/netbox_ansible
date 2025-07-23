@@ -1,0 +1,13 @@
+---
+- name: Show NetBox inventory
+  hosts: all
+  gather_facts: false
+
+  tasks:
+    - name: Print inventory hostname
+      ansible.builtin.debug:
+        msg: "Host: {{ inventory_hostname }}"
+
+    - name: Print host vars
+      ansible.builtin.debug:
+        var: hostvars[inventory_hostname]
