@@ -1,0 +1,43 @@
+- name: Extract list of tenant names
+  ansible.builtin.set_fact:
+    tenant_names: >-
+      {{
+        query('netbox.netbox.nb_lookup', 'tenants',
+              api_endpoint=netbox_url,
+              token=netbox_token)
+        | map(attribute='value.name')
+        | list
+      }}
+
+- name: Extract list of site names
+  ansible.builtin.set_fact:
+    sites_names: >-
+      {{
+        query('netbox.netbox.nb_lookup', 'sites',
+              api_endpoint=netbox_url,
+              token=netbox_token)
+        | map(attribute='value.name')
+        | list
+      }}
+
+- name: Extract list of region names
+  ansible.builtin.set_fact:
+    regions_names: >-
+      {{
+        query('netbox.netbox.nb_lookup', 'regions',
+              api_endpoint=netbox_url,
+              token=netbox_token)
+        | map(attribute='value.name')
+        | list
+      }}
+
+- name: Extract list of location names
+  ansible.builtin.set_fact:
+    locations_names: >-
+      {{
+        query('netbox.netbox.nb_lookup', 'locations',
+              api_endpoint=netbox_url,
+              token=netbox_token)
+        | map(attribute='value.name')
+        | list | unique
+      }}
