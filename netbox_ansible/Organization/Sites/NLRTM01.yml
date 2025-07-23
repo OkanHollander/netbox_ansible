@@ -1,5 +1,5 @@
-name: NLRTM01
-region: Rotterdam
-status: active
-tenant: IT
-site_group: Branch
+name: "NLRTM01"
+status: "Active"
+region: "Rotterdam"
+site_group: "Branch"
+tenant: "IT"
