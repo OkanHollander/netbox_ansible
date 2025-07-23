@@ -7,5 +7,4 @@ data:
     name-servers:
       - 192.0.2.1
       - 192.0.2.2
-regions:
-  - Rotterdam
+regions: {{ ntp_regions }}

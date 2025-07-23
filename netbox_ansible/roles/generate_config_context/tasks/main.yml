@@ -2,7 +2,7 @@
   block:
     - name: Get Context File Declaration
       ansible.builtin.set_fact:
-        raw_config_context: "{{ lookup('file', ansible_config_file | dirname ~ '/' ~ declaration) | from_yaml }}"
+        raw_config_context: "{{ lookup('template', ansible_config_file | dirname ~ '/' ~ declaration) | from_yaml }}"
       tags: always
 
     - name: Create Context
