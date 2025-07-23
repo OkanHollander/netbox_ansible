@@ -3,5 +3,9 @@
   hosts: localhost
   gather_facts: false
 
+  vars:
+    netbox_url: "{{ lookup('env', 'NETBOX_API_URL') }}"
+    netbox_token: "{{ lookup('env', 'NETBOX_API_TOKEN') }}"
+
   roles:
     - role: generate_config_context
