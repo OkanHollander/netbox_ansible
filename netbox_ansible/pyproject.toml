@@ -9,7 +9,8 @@ dependencies = [
     "ansible-lint==25.6.1",
     "jmespath==1.0.1",
     "pynetbox==7.5.0",
-    "PyYAML==6.0.2"
+    "PyYAML==6.0.2",
+    "pytz==2025.2"
 ]
 [project.optional-dependencies]
 dev = ["black", "ruff", "mypy"]
