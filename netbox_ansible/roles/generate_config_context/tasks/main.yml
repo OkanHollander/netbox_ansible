@@ -1,0 +1,23 @@
+- name: Create new config_context for Netbox
+  block:
+    - name: Get Context File Declaration
+      ansible.builtin.set_fact:
+        raw_config_context: "{{ lookup('file', ansible_config_file | dirname ~ '/' ~ declaration) | from_yaml }}"
+      tags: always
+
+    - name: Create Context
+      ansible.builtin.import_tasks: create_context.yml
+      tags: create_config_context
+
+    - name: Delete Context
+      ansible.builtin.include_tasks: delete_context.yml
+      tags: delete_config_context
+
+    - name: DEBUG
+      ansible.builtin.debug:
+        msg: "{{ config_context_output }}"
+
+  rescue:
+    - name: Failure message
+      ansible.builtin.debug:
+        msg: ""
