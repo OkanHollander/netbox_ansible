@@ -1,0 +1,69 @@
+---
+- name: Define the region files directory
+  ansible.builtin.set_fact:
+    region_files_dir: "{{ playbook_dir }}/../Organization/Regions"
+
+- name: Find all region YAML files
+  ansible.builtin.find:
+    paths: "{{ region_files_dir }}"
+    patterns:
+      - "*.yml"
+      - "*.yaml"
+  register: region_files
+
+- name: Initialize regions_raw list
+  ansible.builtin.set_fact:
+    regions_raw: []
+
+- name: Load YAML content from each region file
+  ansible.builtin.set_fact:
+    regions_raw: "{{ regions_raw + [lookup('file', item.path) | from_yaml] }}"
+  loop: "{{ region_files.files }}"
+  loop_control:
+    label: "{{ item.path }}"
+
+- name: Initialize sorting state
+  ansible.builtin.set_fact:
+    sorted_regions: []
+    remaining_regions: "{{ regions_raw }}"
+
+- name: Sort regions topologically (max 10 iterations)
+  vars:
+    sorted_names: "{{ sorted_regions | map(attribute='name') | list }}"
+    root_regions: "{{ remaining_regions | selectattr('parent', 'undefined') | list }}"
+    child_regions: >-
+      {{
+        remaining_regions
+        | selectattr('parent', 'defined')
+        | selectattr('parent', 'in', sorted_names)
+        | list
+      }}
+    new_batch: "{{ root_regions + child_regions }}"
+    new_remaining: "{{ remaining_regions | reject('in', new_batch) | list }}"
+    new_sorted: "{{ sorted_regions + new_batch }}"
+  ansible.builtin.set_fact:
+    sorted_regions: "{{ new_sorted }}"
+    remaining_regions: "{{ new_remaining }}"
+  loop: "{{ range(0, 10) | list }}"
+  when: remaining_regions | length > 0
+  loop_control:
+    label: "Sort pass #{{ item + 1 }}"
+
+- name: Fail if regions could not be fully sorted
+  ansible.builtin.fail:
+    msg: >-
+      Unable to resolve all region dependencies after 10 passes.
+      Remaining regions: {{ remaining_regions | map(attribute='name') | join(', ') }}
+  when: remaining_regions | length > 0
+
+- name: Apply regions to NetBox in order
+  netbox.netbox.netbox_region:
+    netbox_url: "{{ netbox_url }}"
+    netbox_token: "{{ netbox_token }}"
+    data:
+      name: "{{ item.name }}"
+      parent_region: "{{ item.parent | default(omit) }}"
+    state: present
+  loop: "{{ sorted_regions }}"
+  loop_control:
+    label: "{{ item.name }}"
