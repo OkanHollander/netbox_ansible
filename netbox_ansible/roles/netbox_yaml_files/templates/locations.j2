@@ -1,0 +1,9 @@
+name: "{{ item.name }}"
+status: "{{ item.status.label }}"
+site: "{{ item.site.name }}"
+{% if item.description is not none %}
+region: "{{ item.description }}"
+{% endif %}
+{% if item.tenant is not none %}
+tenant: "{{ item.tenant.name }}"
+{% endif %}
