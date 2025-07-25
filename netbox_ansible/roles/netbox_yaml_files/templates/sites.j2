@@ -1,0 +1,11 @@
+name: "{{ item.name }}"
+status: "{{ item.status.label }}"
+{% if item.region is not none %}
+region: "{{ item.region.name }}"
+{% endif %}
+{% if item.group is not none %}
+site_group: "{{ item.group.name }}"
+{% endif %}
+{% if item.tenant is not none %}
+tenant: "{{ item.tenant.name }}"
+{% endif %}
