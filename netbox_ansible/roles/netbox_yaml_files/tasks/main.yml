@@ -14,3 +14,7 @@
 - name: Create locations
   ansible.builtin.include_tasks: locations.yml
   tags: locations
+
+- name: Create site groups
+  ansible.builtin.include_tasks: site_groups.yml
+  tags: site_groups
