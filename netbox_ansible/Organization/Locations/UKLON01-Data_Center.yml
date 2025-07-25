@@ -1,0 +1,5 @@
+name: "Data Center"
+status: "Active"
+site: "UKLON01"
+region: "On Premises Data Center"
+tenant: "IT"

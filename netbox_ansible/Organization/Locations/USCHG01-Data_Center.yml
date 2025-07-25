@@ -1,0 +1,5 @@
+name: "Data Center"
+status: "Active"
+site: "USCHG01"
+region: "On Premises Data Center"
+tenant: "IT"
