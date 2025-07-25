@@ -1,0 +1,25 @@
+- name: Extract list of location names
+  ansible.builtin.set_fact:
+    locations_names: >-
+      {{
+        query('netbox.netbox.nb_lookup', 'locations',
+              api_endpoint=netbox_url,
+              token=netbox_token)
+        | map(attribute='value')
+        | list
+      }}
+  tags: locations
+# - debug: var=locations_names
+- name: Define the location files directory
+  ansible.builtin.set_fact:
+    location_files_dir: "{{ playbook_dir }}/../Organization/Locations"
+  tags: locations
+- name: Write each tenant to a YAML file
+  ansible.builtin.template:
+    src: "locations.j2"
+    dest: "{{ location_files_dir }}/{{ item.site.name }}-{{ item.name | replace(' ', '_') }}.yml"
+    mode: '0644'
+  loop: "{{ locations_names }}"
+  loop_control:
+    label: "{{ item.name }}"
+  tags: locations
