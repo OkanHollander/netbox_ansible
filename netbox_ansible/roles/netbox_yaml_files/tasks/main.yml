@@ -1,3 +1,6 @@
 ---
 - name: Create regions
   ansible.builtin.include_tasks: regions.yml
+
+- name: Create sites
+  ansible.builtin.include_tasks: sites.yml
