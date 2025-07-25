@@ -6,3 +6,7 @@
 - name: Create sites
   ansible.builtin.include_tasks: sites.yml
   tags: sites
+
+- name: Create tenants
+  ansible.builtin.include_tasks: tenants.yml
+  tags: tenants
