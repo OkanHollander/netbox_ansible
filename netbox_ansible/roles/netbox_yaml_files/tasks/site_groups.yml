@@ -1,0 +1,25 @@
+- name: Extract list of site_group names
+  ansible.builtin.set_fact:
+    site_groups_names: >-
+      {{
+        query('netbox.netbox.nb_lookup', 'site-groups',
+              api_endpoint=netbox_url,
+              token=netbox_token)
+        | map(attribute='value')
+        | list
+      }}
+  tags: site_groups
+# - debug: var=site_groups_names
+- name: Define the site_group files directory
+  ansible.builtin.set_fact:
+    site_group_files_dir: "{{ playbook_dir }}/../Organization/Site_Groups"
+  tags: site_groups
+- name: Write each tenant to a YAML file
+  ansible.builtin.template:
+    src: "site_groups.j2"
+    dest: "{{ site_group_files_dir }}/{{ item.name | replace(' ', '_') }}.yml"
+    mode: '0644'
+  loop: "{{ site_groups_names }}"
+  loop_control:
+    label: "{{ item.name }}"
+  tags: site_groups
