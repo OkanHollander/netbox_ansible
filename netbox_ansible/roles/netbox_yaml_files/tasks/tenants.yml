@@ -1,0 +1,24 @@
+- name: Extract list of tenant names
+  ansible.builtin.set_fact:
+    tenants_names: >-
+      {{
+        query('netbox.netbox.nb_lookup', 'tenants',
+              api_endpoint=netbox_url,
+              token=netbox_token)
+        | map(attribute='value')
+        | list
+      }}
+  tags: tenants
+- name: Define the tenant files directory
+  ansible.builtin.set_fact:
+    tenant_files_dir: "{{ playbook_dir }}/../Organization/Tenants"
+  tags: tenants
+- name: Write each tenant to a YAML file
+  ansible.builtin.template:
+    src: "tenants.j2"
+    dest: "{{ tenant_files_dir }}/{{ item.name | replace(' ', '_') }}.yml"
+    mode: '0644'
+  loop: "{{ tenants_names }}"
+  loop_control:
+    label: "{{ item.name }}"
+  tags: tenants
