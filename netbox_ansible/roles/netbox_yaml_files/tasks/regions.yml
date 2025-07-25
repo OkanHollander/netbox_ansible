@@ -1,0 +1,23 @@
+- name: Extract list of region names
+  ansible.builtin.set_fact:
+    regions_names: >-
+      {{
+        query('netbox.netbox.nb_lookup', 'regions',
+              api_endpoint=netbox_url,
+              token=netbox_token)
+        | map(attribute='value')
+        | list
+      }}
+# - debug: var=regions_names
+- name: Define the region files directory
+  ansible.builtin.set_fact:
+    region_files_dir: "{{ playbook_dir }}/../Organization/Regions"
+
+- name: Write each tenant to a YAML file
+  ansible.builtin.template:
+    src: "regions.j2"
+    dest: "{{ region_files_dir }}/{{ item.name | replace(' ', '_') }}.yml"
+    mode: '0644'
+  loop: "{{ regions_names }}"
+  loop_control:
+    label: "{{ item.name }}"
