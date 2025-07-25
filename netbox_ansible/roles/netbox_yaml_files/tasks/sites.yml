@@ -8,10 +8,11 @@
         | map(attribute='value')
         | list
       }}
+  tags: sites
 - name: Define the site files directory
   ansible.builtin.set_fact:
     site_files_dir: "{{ playbook_dir }}/../Organization/Sites"
-
+  tags: sites
 - name: Write each tenant to a YAML file
   ansible.builtin.template:
     src: "sites.j2"
@@ -20,3 +21,4 @@
   loop: "{{ sites_names }}"
   loop_control:
     label: "{{ item.name }}"
+  tags: sites
