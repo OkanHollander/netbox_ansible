@@ -8,11 +8,12 @@
         | map(attribute='value')
         | list
       }}
+  tags: regions
 # - debug: var=regions_names
 - name: Define the region files directory
   ansible.builtin.set_fact:
     region_files_dir: "{{ playbook_dir }}/../Organization/Regions"
-
+  tags: regions
 - name: Write each tenant to a YAML file
   ansible.builtin.template:
     src: "regions.j2"
@@ -21,3 +22,4 @@
   loop: "{{ regions_names }}"
   loop_control:
     label: "{{ item.name }}"
+  tags: regions
