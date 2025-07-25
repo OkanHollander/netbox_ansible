@@ -10,3 +10,7 @@
 - name: Create tenants
   ansible.builtin.include_tasks: tenants.yml
   tags: tenants
+
+- name: Create locations
+  ansible.builtin.include_tasks: locations.yml
+  tags: locations
