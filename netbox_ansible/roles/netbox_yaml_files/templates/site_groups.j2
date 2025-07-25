@@ -1,0 +1,4 @@
+name: "{{ item.name }}"
+{% if item.parent is not none %}
+parent: "{{ item.parent.name }}"
+{% endif %}
